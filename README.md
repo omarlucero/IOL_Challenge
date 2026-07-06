@@ -28,6 +28,14 @@ graph TD
     style A fill:#f9f,stroke:#333,stroke-width:2px
     style K fill:#bbf,stroke:#333,stroke-width:2px
 ```
+##  Instrucciones de Reproducción Paso a Paso
+
+Para ejecutar este pipeline en un entorno de **Databricks Community Edition**, siga estrictamente este orden:
+
+1. **Carga de Datos:** Descomprimir el archivo `data_set_challenge.rar` y subir el CSV `data_set_challenge.csv` a su entorno de Databricks. La ruta configurada en los notebooks por defecto es dentro de un volumen o directorio DBFS: `/Volumes/workspace/bronze_byma/data/data_set_challenge.csv`.
+2. **Importación del Repositorio:** Clone o importe las 4 notebooks (`01_ingesta_bronze`, `02_cotizaciones_silver`, `03_silver_gold_transform`) y el orquestador `00_run_pipeline` dentro de la misma carpeta en su Workspace.
+3. **Ejecución Completa:** Abra el notebook **`00_run_pipeline`** y haga clic en **"Run All" (Ejecutar todo)**. El script ejecutará de forma secuencial y en un solo paso todas las capas del modelo Medallion utilizando el framework `dbutils.notebook.run()`.
+4. **Verificación de Métricas:** Al finalizar, puede consultar la tabla `bronze_byma.pipeline_metrics` para auditar los tiempos de ejecución y los estados finales del Data Quality Gateway.
 
 
 ### 📋 Decisiones de Diseño y Criterios de Negocio
