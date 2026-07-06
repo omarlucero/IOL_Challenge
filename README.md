@@ -1,3 +1,35 @@
+**Diagrama de arquitectura:**
+```mermaid
+graph TD
+    %% Fuentes de Datos Iniciales
+    A[CSV Transacciones Iniciales] -->|Spark CSV Reader| B(bronze_byma_operaciones_raw)
+
+    %% Capa Bronze (Deduplicación y Calidad)
+    B -->|Spark SQL y Regex| C(bronze_byma_calidad_log)
+
+    %% Capa Silver (Paralelización API y Forward Fill Analítico)
+    B -->|Filtro Tickers Unicos| D{UDF PySpark API Yahoo}
+    D -->|CROSS JOIN Matriz Calendario| E(silver_byma_cotizaciones_historicas)
+    E -->|LAST_VALUE Forward Fill SQL| E
+
+    %% Capa Gold (Modelo en Estrella)
+    B -->|Segmentacion SCD Tipo 2| F(gold_byma_dim_cliente)
+    B -->|Logica Regex D C Unificada| G(gold_byma_dim_instrumento)
+    
+    %% Inicialización Temprana
+    H[Generador Secuencia SQL] -->|Q1 2026 Fijos| I(gold_byma_dim_fecha)
+
+    %% Tabla de Hechos Final Enriquecida
+    B & E & F & G & I -->|MERGE Idempotente SQL| J(gold_byma_fact_operaciones)
+
+    %% Framework de Salud y Observabilidad
+    J -->|Data Quality Gateways| K(bronze_byma_pipeline_metrics)
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style K fill:#bbf,stroke:#333,stroke-width:2px
+```
+
+
 ### 📋 Decisiones de Diseño y Criterios de Negocio
 
 #### 1. Detección de Outliers y Criterio de Calidad de Montos
